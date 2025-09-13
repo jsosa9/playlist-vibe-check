@@ -12,7 +12,7 @@ from typing import List, Dict
 import httpx
 
 # loading .env
-load_dotenv()
+load_dotenv(dotenv_path="./.env")
 
 # This line is crucial - it creates the FastAPI instance named 'app'
 app = FastAPI(title="Playlist Vibe Check API")
