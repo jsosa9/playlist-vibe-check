@@ -10,6 +10,14 @@ from analysis_engine import analyze_playlist_data
 from ai_prompter import generate_vibe_report
 from typing import List, Dict
 import httpx
+from http.server import BaseHTTPRequestHandler
+
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/plain')
+        self.end_headers()
+        return
 
 # loading .env
 load_dotenv(dotenv_path="./.env")
