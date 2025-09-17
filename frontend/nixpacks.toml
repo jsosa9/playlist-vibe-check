@@ -1,0 +1,4 @@
+[build]
+setup = ["yarn install", "yarn dev"]
+[start]
+cmd = "yarn dev"
