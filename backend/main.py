@@ -52,7 +52,7 @@ async def health_check():
 # spotify auth
 @app.post("/api/exchange-token")
 async def exchange_token(data: dict):
-    print("here")
+    # print("here")
     code = data.get('code')
     # Use the 'requests' library to call Spotify's token endpoint
     response = requests.post(
@@ -60,7 +60,7 @@ async def exchange_token(data: dict):
         data={
             'grant_type': 'authorization_code',
             'code': code,
-            'redirect_uri': 'http://127.0.0.1:3000/api/auth/callback',
+            'redirect_uri': os.getenv("FRONTEND_CALLBACK_URL"),
             'client_id': os.getenv("SPOTIFY_CLIENT_ID"),
             'client_secret': os.getenv("SPOTIFY_CLIENT_SECRET")
         }
@@ -70,36 +70,36 @@ async def exchange_token(data: dict):
 
 @app.post("/analyze/playlist/{playlist_id}")
 async def analyze_playlist_direct(playlist_id: str, authorization: str = Header(None)):
-    print("got here")
+    # print("got here")
     """
     Analyze a playlist directly from Spotify API (no CSV needed)
     """
-    print(f"🔍 Received analysis request for playlist: {playlist_id}")
-    print(f"🔍 Authorization header: {authorization}")
+    # print(f"🔍 Received analysis request for playlist: {playlist_id}")
+    # print(f"🔍 Authorization header: {authorization}")
     
     if not authorization or not authorization.startswith("Bearer "):
-        print("❌ Missing or invalid authorization header")
+        # print("❌ Missing or invalid authorization header")
         raise HTTPException(status_code=401, detail="Missing access token")
     
     access_token = authorization.split(" ")[1]
-    print(f"🔍 Extracted access token: {access_token[:20]}...")
+    # print(f"🔍 Extracted access token: {access_token[:20]}...")
     
     try:
         # 1. Get playlist data from Spotify
-        print(f"🔍 Fetching playlist data for: {playlist_id}")
+        # print(f"🔍 Fetching playlist data for: {playlist_id}")
         playlist_data, df = await get_playlist_from_spotify(access_token, playlist_id)
         playlist_name = playlist_data['name']
-        print(f"✅ Got playlist: {playlist_name} with {len(df)} tracks")
+        # print(f"✅ Got playlist: {playlist_name} with {len(df)} tracks")
         
         # 2. Analyze the data using your existing engine
-        print("🔍 Starting analysis...")
+        # print("🔍 Starting analysis...")
         analysis_data = analyze_playlist_from_dataframe(df, playlist_name)
-        print("✅ Analysis completed")
+        # print("✅ Analysis completed")
         
         # 3. Generate AI report
-        print("🔍 Generating AI report...")
+        # print("🔍 Generating AI report...")
         ai_report = generate_vibe_report(analysis_data)
-        print("✅ AI report generated")
+        # print("✅ AI report generated")
         
         # 4. Prepare response with safe values
         response_data = {
@@ -112,14 +112,14 @@ async def analyze_playlist_direct(playlist_id: str, authorization: str = Header(
             }
         }
         
-        print("✅ Response prepared successfully")
+        # print("✅ Response prepared successfully")
         return response_data
         
     except Exception as e:
-        print(f"❌ Analysis error: {str(e)}")
-        print(f"❌ Error type: {type(e).__name__}")
+        # print(f"❌ Analysis error: {str(e)}")
+        # print(f"❌ Error type: {type(e).__name__}")
         import traceback
-        print(f"❌ Traceback: {traceback.format_exc()}")
+        # print(f"❌ Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 async def get_playlist_from_spotify(access_token: str, playlist_id: str):
@@ -157,23 +157,24 @@ async def get_playlist_from_spotify(access_token: str, playlist_id: str):
         
         for i in range(0, len(track_ids), 100):
             batch_ids = track_ids[i:i+100]
-            print(f"🔍 Fetching audio features for batch {i//100 + 1}, track IDs: {batch_ids[:3]}...")
+            # print(f"🔍 Fetching audio features for batch {i//100 + 1}, track IDs: {batch_ids[:3]}...")
             features_response = await client.get(
                 f"https://api.spotify.com/v1/audio-features?ids={','.join(batch_ids)}",
                 headers=headers
             )
-            print(f"🔍 Audio features response status: {features_response.status_code}")
+            # print(f"🔍 Audio features response status: {features_response.status_code}")
             if features_response.status_code == 200:
                 features_data = features_response.json()
-                print(f"🔍 Got {len(features_data.get('audio_features', []))} audio features")
+                # print(f"🔍 Got {len(features_data.get('audio_features', []))} audio features")
                 for feature in features_data.get('audio_features', []):
                     if feature:
                         audio_features_map[feature['id']] = feature
-                        print("audio_features_map")
-                        print(audio_features_map)
-                        print(f"🔍 Sample audio feature for {feature['id']}: danceability={feature.get('danceability')}, energy={feature.get('energy')}")
+                        # print("audio_features_map")
+                        # print(audio_features_map)
+                        # print(f"🔍 Sample audio feature for {feature['id']}: danceability={feature.get('danceability')}, energy={feature.get('energy')}")
             else:
-                print(f"❌ Failed to fetch audio features: {features_response.status_code}")
+                # print(f"❌ Failed to fetch audio features: {features_response.status_code}")
+                pass
         
         # Convert to DataFrame (same format as Exportify CSV)
         df = create_dataframe_from_spotify_data(all_tracks, audio_features_map)
@@ -202,18 +203,17 @@ def create_dataframe_from_spotify_data(tracks: list, audio_features_map: dict) -
             
         features = audio_features_map.get(track['id'], {})
         
-        # Safely extract artist names
+        # Debug audio features for first few tracks
+        # if len(rows) < 3:
+        #     print(f"🔍 Track {len(rows) + 1}: {track.get('name', 'Unknown')}")
+        #     print(f"🔍 Raw features: {features}")
+        #     print(f"🔍 Danceability raw: {features.get('danceability')}, safe_float: {safe_float(features.get('danceability'))}")
+        #     print(f"🔍 Energy raw: {features.get('energy')}, safe_float: {safe_float(features.get('energy'))}")
+        
         artist_names = []
         for artist in track.get('artists', []):
             if isinstance(artist, dict) and 'name' in artist:
                 artist_names.append(artist['name'])
-        
-        # Debug audio features for first few tracks
-        if len(rows) < 3:
-            print(f"🔍 Track {len(rows) + 1}: {track.get('name', 'Unknown')}")
-            print(f"🔍 Raw features: {features}")
-            print(f"🔍 Danceability raw: {features.get('danceability')}, safe_float: {safe_float(features.get('danceability'))}")
-            print(f"🔍 Energy raw: {features.get('energy')}, safe_float: {safe_float(features.get('energy'))}")
         
         row = {
             "Track Name": track.get('name', ''),
@@ -223,7 +223,6 @@ def create_dataframe_from_spotify_data(tracks: list, audio_features_map: dict) -
             "Popularity": safe_float(track.get('popularity'), 0),
             "Duration (ms)": safe_float(track.get('duration_ms'), 0),
             "Explicit": bool(track.get('explicit', False)),
-            # Audio features - ensure all are valid floats
             "Danceability": safe_float(features.get('danceability')),
             "Energy": safe_float(features.get('energy')),
             "Valence": safe_float(features.get('valence')),
@@ -236,7 +235,6 @@ def create_dataframe_from_spotify_data(tracks: list, audio_features_map: dict) -
         rows.append(row)
     
     if not rows:
-        # Return empty DataFrame with expected columns if no tracks
         return pd.DataFrame(columns=[
             "Track Name", "Artist Name(s)", "Album Name", "Track ID", "Popularity",
             "Duration (ms)", "Explicit", "Danceability", "Energy", "Valence",
@@ -247,18 +245,17 @@ def create_dataframe_from_spotify_data(tracks: list, audio_features_map: dict) -
 
 def analyze_playlist_from_dataframe(df: pd.DataFrame, playlist_name: str):
     """Adapter to use your existing analysis engine with DataFrame"""
-    print(f"🔍 Input DataFrame shape: {df.shape}")
-    print(f"🔍 Input DataFrame columns: {list(df.columns)}")
-    print(f"🔍 Sample audio features before CSV conversion:")
-    if 'Danceability' in df.columns:
-        print(f"  Danceability: {df['Danceability'].head(3).tolist()}")
-    if 'Energy' in df.columns:
-        print(f"  Energy: {df['Energy'].head(3).tolist()}")
+    # print(f"🔍 Input DataFrame shape: {df.shape}")
+    # print(f"🔍 Input DataFrame columns: {list(df.columns)}")
+    # print(f"🔍 Sample audio features before CSV conversion:")
+    # if 'Danceability' in df.columns:
+    #     print(f"  Danceability: {df['Danceability'].head(3).tolist()}")
+    # if 'Energy' in df.columns:
+    #     print(f"  Energy: {df['Energy'].head(3).tolist()}")
     
-    # Convert DataFrame to CSV string to reuse your existing code
     csv_content = df.to_csv(index=False)
     
-    print(f"🔍 CSV content length: {len(csv_content)}")
-    print(f"🔍 CSV sample (first 500 chars): {csv_content[:500]}")
+    # print(f"🔍 CSV content length: {len(csv_content)}")
+    # print(f"🔍 CSV sample (first 500 chars): {csv_content[:500]}")
     
     return analyze_playlist_data(csv_content, playlist_name)
