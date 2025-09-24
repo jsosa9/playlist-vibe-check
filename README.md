@@ -85,7 +85,7 @@ Create a compelling portfolio project that demonstrates:
 
 ## 🔗 Useful Links
 
-- 🔌 [Exportify Repo (base frontend)](https://github.com/watsonbox/exportify)  
+- 🔌 [Exportify Repo (Inspired this idea)](https://github.com/watsonbox/exportify)  
 - 📊 [Data Analysis Inspiration](https://github.com/pvlkmrv/music-taste-analysis)  
 - 🌐 Live App domain coming soon 
 - 📁 [This GitHub Repo](https://github.com/jsosa9/playlist-vibe-check)
