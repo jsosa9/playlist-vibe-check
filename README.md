@@ -60,9 +60,6 @@ Create a compelling portfolio project that demonstrates:
 
 ---
 
-
----
-
 ## 📆 Phase Plan
 
 ### 🔹 Phase 1: Foundation
@@ -103,7 +100,4 @@ Create a compelling portfolio project that demonstrates:
 - Unique use-case: music + data + storytelling
 
 ---
-
-
-## 🗂 Project Structure
 
