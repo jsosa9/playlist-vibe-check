@@ -1,7 +1,12 @@
 # 🎧 Playlist Vibe Check
 
-**One-liner:**  
 A full-stack app that transforms Spotify playlists into AI-powered vibe reports with data analytics + narrative insights.
+
+---
+## 🎥 Demo
+
+[![Watch Demo](https://img.youtube.com/vi/o9d4UJK/0.jpg)](https://i.imgur.com/o9d4UJK.mp4)  
+*Click to watch demo video*
 
 ---
 
@@ -12,13 +17,6 @@ A full-stack app that transforms Spotify playlists into AI-powered vibe reports 
 🧠 OpenAI integration planned post-launch for improved music analysis
 
 > 📌 **Once Spotify approves production access**, the app will be fully functional at a domain that i'll purchase soon. 
-
----
-
-## 🎥 Demo
-
-[![Watch Demo](https://img.youtube.com/vi/o9d4UJK/0.jpg)](https://i.imgur.com/o9d4UJK.mp4)  
-*Click to watch demo video*
 
 ---
 
